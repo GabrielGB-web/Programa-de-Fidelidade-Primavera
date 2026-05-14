@@ -161,6 +161,15 @@ export function AdminModal({ onClose }: AdminModalProps) {
     }
   };
 
+  const handleAuth = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pin === '1234') {
+      setIsAuthenticated(true);
+    } else {
+      alert('PIN Incorreto');
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-xl z-50 flex items-center justify-center p-6">
       <motion.div 
