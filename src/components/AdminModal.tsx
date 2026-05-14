@@ -98,8 +98,13 @@ export function AdminModal({ onClose }: AdminModalProps) {
         <div className="p-8 bg-slate-900 text-white flex justify-between items-center relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
           <div className="flex items-center gap-4 relative z-10">
-            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10">
-              <Settings className="text-white" size={24} />
+            <div className="flex items-center gap-2">
+              <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10">
+                <Settings className="text-white" size={24} />
+              </div>
+              <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center p-1">
+                <img src="https://i.ibb.co/q34P8RbS/LOGO-GTA-2.png" alt="Logo GTA" className="w-full h-full object-contain" />
+              </div>
             </div>
             <div>
               <h2 className="text-2xl font-bold tracking-tight">Painel de Gestão</h2>

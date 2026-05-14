@@ -29,8 +29,13 @@ export function Navbar({ user, onViewChange }: NavbarProps) {
         className="flex items-center gap-3 cursor-pointer group" 
         onClick={() => onViewChange(View.LANDING)}
       >
-        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center p-1 border border-slate-100 group-hover:scale-110 transition-transform duration-300">
-          <img src="/logo_primavera.png" alt="Primavera" className="w-full h-full object-contain" />
+        <div className="flex items-center gap-2">
+          <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center p-1 border border-slate-100 group-hover:scale-110 transition-transform duration-300">
+            <img src="/logo_primavera.png" alt="Primavera" className="w-full h-full object-contain" />
+          </div>
+          <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center p-1 border border-slate-100 group-hover:scale-110 transition-transform duration-300">
+            <img src="https://i.ibb.co/q34P8RbS/LOGO-GTA-2.png" alt="Logo GTA" className="w-full h-full object-contain" />
+          </div>
         </div>
         <div>
           <h1 className="text-lg font-bold text-slate-800 leading-none">Farmácia Primavera</h1>
