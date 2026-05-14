@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Gift, Receipt } from 'lucide-react';
+import { Gift, Receipt, Settings } from 'lucide-react';
 import { View } from '../types';
 
 interface LandingViewProps {
@@ -15,19 +15,6 @@ export function LandingView({ onSelect }: LandingViewProps) {
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
       >
-        <div className="inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest mb-6">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-          </span>
-          Programa de Fidelidade
-        </div>
-
-        <div className="mb-8">
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500 mr-2"></span>
-          Programa de Fidelidade
-        </div>
-        
         <h1 className="text-6xl md:text-7xl font-bold text-slate-900 leading-tight mb-6">
           Cuidar de você <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-indigo-600 italic">vale prêmios.</span>
@@ -55,38 +42,50 @@ export function LandingView({ onSelect }: LandingViewProps) {
         </div>
       </motion.div>
 
-      <div className="grid gap-6">
+      <div className="grid gap-4">
         <motion.button
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          whileHover={{ y: -5, scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+          whileHover={{ y: -5, scale: 1.01 }}
           onClick={() => onSelect(View.CUSTOMER)}
-          className="bg-white p-10 rounded-[3rem] shadow-xl shadow-slate-200/50 border border-slate-100 text-left group transition-all duration-300"
+          className="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 text-left group transition-all"
         >
-          <div className="w-14 h-14 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-rose-500 group-hover:text-white transition-all duration-500 shadow-inner">
-            <Gift size={30} />
+          <div className="w-12 h-12 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-rose-500 group-hover:text-white transition-all">
+            <Gift size={24} />
           </div>
-          <h3 className="text-3xl font-bold text-slate-800 mb-3">Sou Cliente</h3>
-          <p className="text-slate-500 text-base leading-relaxed">Acesse sua conta para ver seus pontos acumulados e escolher seus próximos brindes.</p>
+          <h3 className="text-2xl font-bold text-slate-800 mb-2">Sou Cliente</h3>
+          <p className="text-slate-500 text-sm">Consultar pontos e escolher brindes.</p>
         </motion.button>
 
         <motion.button
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          whileHover={{ y: -5, scale: 1.01 }}
+          onClick={() => onSelect(View.CASHIER)}
+          className="bg-slate-900 p-8 rounded-[2.5rem] shadow-2xl shadow-slate-900/20 text-left text-white group overflow-hidden relative"
+        >
+          <div className="w-12 h-12 bg-white/10 text-white rounded-2xl flex items-center justify-center mb-6 group-hover:bg-indigo-500 transition-all">
+            <Receipt size={24} />
+          </div>
+          <h3 className="text-2xl font-bold mb-2">Colaborador</h3>
+          <p className="text-slate-400 text-sm">Registro de vendas e entregas.</p>
+        </motion.button>
+
+        <motion.button
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          whileHover={{ y: -5, scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => onSelect(View.CASHIER)}
-          className="bg-slate-900 p-10 rounded-[3rem] shadow-2xl shadow-slate-900/20 text-left text-white group overflow-hidden relative"
+          whileHover={{ y: -5, scale: 1.01 }}
+          onClick={() => onSelect(View.ADMIN)}
+          className="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-indigo-100/50 text-left group transition-all"
         >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-white/10 transition-all"></div>
-          <div className="w-14 h-14 bg-white/10 text-white rounded-2xl flex items-center justify-center mb-8 group-hover:bg-brand-blue transition-all duration-500 shadow-inner">
-            <Receipt size={30} />
+          <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+            <Settings size={24} />
           </div>
-          <h3 className="text-3xl font-bold mb-3">Colaborador</h3>
-          <p className="text-slate-400 text-base leading-relaxed">Área restrita para registro de vendas, consulta de cupons e gestão de pontos.</p>
+          <h3 className="text-2xl font-bold text-slate-800 mb-2">Administrador</h3>
+          <p className="text-slate-500 text-sm">Gerenciar catálogo e ver estatísticas.</p>
         </motion.button>
       </div>
     </div>

@@ -28,7 +28,8 @@ export function AdminModal({ onClose }: AdminModalProps) {
   const [stats, setStats] = useState({ totalCustomers: 0, totalPoints: 0, totalRewards: 0 });
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [pin, setPin] = useState('');
-  const { register, handleSubmit, reset } = useForm();
+  const [editingReward, setEditingReward] = useState<Reward | null>(null);
+  const { register, handleSubmit, reset, setValue } = useForm();
   const [loading, setLoading] = useState(false);
 
   const fetchRewards = async () => {
@@ -93,23 +94,51 @@ export function AdminModal({ onClose }: AdminModalProps) {
     fetchStats();
   }, [rewards]);
 
-  const addReward = async (data: any) => {
+  const saveReward = async (data: any) => {
     setLoading(true);
     try {
-      const { error } = await supabase.from('rewards').insert({
+      const rewardData = {
         name: data.name,
         points_required: parseInt(data.pointsRequired),
         description: data.description,
         image_url: data.imageUrl,
         active: true
-      });
-      if (error) throw error;
+      };
+
+      if (editingReward) {
+        const { error } = await supabase
+          .from('rewards')
+          .update(rewardData)
+          .eq('id', editingReward.id);
+        if (error) throw error;
+        alert("Brinde atualizado com sucesso!");
+      } else {
+        const { error } = await supabase.from('rewards').insert(rewardData);
+        if (error) throw error;
+        alert("Brinde cadastrado com sucesso!");
+      }
+      
       reset();
+      setEditingReward(null);
       fetchRewards();
     } catch (e: any) {
       alert(`Erro: ${e.message}`);
     }
     setLoading(false);
+  };
+
+  const startEdit = (reward: Reward) => {
+    setEditingReward(reward);
+    setValue('name', reward.name);
+    setValue('pointsRequired', reward.points_required);
+    setValue('imageUrl', reward.image_url);
+    setValue('description', reward.description);
+    // Scroll form into view if needed
+  };
+
+  const cancelEdit = () => {
+    setEditingReward(null);
+    reset();
   };
 
   const deliverReward = async (txId: string) => {
@@ -310,10 +339,10 @@ export function AdminModal({ onClose }: AdminModalProps) {
                 <div className="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center">
                   <Plus size={18} />
                 </div>
-                <h3 className="font-bold text-slate-800">Novo Brinde</h3>
+                <h3 className="font-bold text-slate-800">{editingReward ? "Editar Brinde" : "Novo Brinde"}</h3>
               </div>
               
-              <form onSubmit={handleSubmit(addReward)} className="space-y-4">
+              <form onSubmit={handleSubmit(saveReward)} className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Nome do Brinde</label>
                   <input {...register('name', { required: true })} placeholder="Ex: Kit Higiene Premium" className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:bg-white focus:border-indigo-500/20 outline-none transition-all font-bold text-slate-700" />
@@ -337,10 +366,19 @@ export function AdminModal({ onClose }: AdminModalProps) {
 
                 <button 
                   disabled={loading}
-                  className="w-full bg-slate-900 text-white py-5 rounded-[1.5rem] font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-xl shadow-slate-200 disabled:opacity-50"
+                  className={`w-full text-white py-5 rounded-[1.5rem] font-black uppercase tracking-widest transition-all shadow-xl disabled:opacity-50 ${editingReward ? 'bg-amber-500 hover:bg-amber-600 shadow-amber-200' : 'bg-slate-900 hover:bg-indigo-600 shadow-slate-200'}`}
                 >
-                  {loading ? "Gravando..." : "Salvar no Catálogo"}
+                  {loading ? "Gravando..." : editingReward ? "Salvar Alterações" : "Salvar no Catálogo"}
                 </button>
+                {editingReward && (
+                  <button 
+                    type="button"
+                    onClick={cancelEdit}
+                    className="w-full text-slate-400 py-2 font-bold text-xs uppercase tracking-widest hover:text-rose-500 transition-colors"
+                  >
+                    Cancelar Edição
+                  </button>
+                )}
               </form>
             </section>
 
@@ -368,12 +406,20 @@ export function AdminModal({ onClose }: AdminModalProps) {
                         <p className="text-[10px] text-indigo-600 font-black uppercase tracking-widest">{r.points_required} pts</p>
                       </div>
                     </div>
-                    <button 
-                      onClick={() => deleteReward(r.id)}
-                      className="w-9 h-9 flex items-center justify-center text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all"
-                    >
-                      <Trash2 size={18} />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => startEdit(r)}
+                        className="w-9 h-9 flex items-center justify-center text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all"
+                      >
+                        <Settings size={18} />
+                      </button>
+                      <button 
+                        onClick={() => deleteReward(r.id)}
+                        className="w-9 h-9 flex items-center justify-center text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
