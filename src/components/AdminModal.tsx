@@ -11,7 +11,8 @@ import {
   Star,
   Settings,
   PackageCheck,
-  CheckCircle
+  CheckCircle,
+  History
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Reward, Transaction } from '../types';
@@ -266,10 +267,13 @@ export function AdminModal({ onClose }: AdminModalProps) {
           {/* History Section */}
           <section className="bg-slate-50 p-8 rounded-[3rem] border border-slate-100">
             <div className="flex items-center gap-3 mb-8">
-              <div className="w-10 h-10 bg-slate-200 text-slate-500 rounded-xl flex items-center justify-center">
-                <BarChart3 size={22} />
+              <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center">
+                <History size={22} />
               </div>
-              <h3 className="font-bold text-slate-800">Histórico de Resgates Concluídos</h3>
+              <div>
+                <h3 className="font-bold text-slate-800">Histórico Geral de Entregas</h3>
+                <p className="text-[10px] text-slate-400 font-bold uppercase">Registro de todos os brindes já entregues</p>
+              </div>
             </div>
             
             <div className="space-y-3">
@@ -349,8 +353,8 @@ export function AdminModal({ onClose }: AdminModalProps) {
                 {rewards.map(r => (
                   <div key={r.id} className="p-4 bg-white border border-slate-100 rounded-2xl flex justify-between items-center group hover:border-indigo-400/30 transition-all shadow-sm">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-slate-100 overflow-hidden border border-slate-100">
-                        {r.image_url ? <img src={r.image_url} className="w-full h-full object-cover" /> : <Gift className="w-full h-full p-3 text-slate-300" />}
+                      <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center border border-slate-100">
+                        <Gift className="text-slate-300" size={24} />
                       </div>
                       <div>
                         <p className="font-bold text-slate-800 text-sm">{r.name}</p>
