@@ -9,10 +9,12 @@ import {
   BarChart3, 
   Users, 
   Star,
-  Settings
+  Settings,
+  PackageCheck,
+  CheckCircle
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { Reward } from '../types';
+import { Reward, Transaction } from '../types';
 
 interface AdminModalProps {
   onClose: () => void;
@@ -20,6 +22,7 @@ interface AdminModalProps {
 
 export function AdminModal({ onClose }: AdminModalProps) {
   const [rewards, setRewards] = useState<Reward[]>([]);
+  const [pendingRedemptions, setPendingRedemptions] = useState<any[]>([]);
   const [stats, setStats] = useState({ totalCustomers: 0, totalPoints: 0, totalRewards: 0 });
   const { register, handleSubmit, reset } = useForm();
   const [loading, setLoading] = useState(false);
@@ -27,6 +30,17 @@ export function AdminModal({ onClose }: AdminModalProps) {
   const fetchRewards = async () => {
     const { data } = await supabase.from('rewards').select('*');
     if (data) setRewards(data as Reward[]);
+  };
+
+  const fetchRedemptions = async () => {
+    // We assume 'type' and 'status' columns exist
+    const { data } = await supabase
+      .from('transactions')
+      .select('*, customers(name)')
+      .eq('type', 'redeem')
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false });
+    if (data) setPendingRedemptions(data);
   };
 
   const fetchStats = async () => {
@@ -48,10 +62,14 @@ export function AdminModal({ onClose }: AdminModalProps) {
 
   useEffect(() => {
     fetchRewards();
+    fetchRedemptions();
     
-    const channel = supabase.channel('rewards-all')
+    const channel = supabase.channel('db-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'rewards' }, () => {
         fetchRewards();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, () => {
+        fetchRedemptions();
       })
       .subscribe();
     
@@ -79,6 +97,19 @@ export function AdminModal({ onClose }: AdminModalProps) {
       alert(`Erro: ${e.message}`);
     }
     setLoading(false);
+  };
+
+  const deliverReward = async (txId: string) => {
+    try {
+      const { error } = await supabase
+        .from('transactions')
+        .update({ status: 'delivered' })
+        .eq('id', txId);
+      if (error) throw error;
+      fetchRedemptions();
+    } catch (e: any) {
+      alert(`Erro ao entregar: ${e.message}`);
+    }
   };
 
   const deleteReward = async (id: string) => {
@@ -146,6 +177,55 @@ export function AdminModal({ onClose }: AdminModalProps) {
                  <p className="text-2xl font-black text-slate-800">{rewards.length}</p>
                </div>
              </div>
+          </section>
+
+          {/* Redemptions Section */}
+          <section className="bg-emerald-50/50 p-8 rounded-[3rem] border border-emerald-100">
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                  <PackageCheck size={22} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-800">Resgates Pendentes</h3>
+                  <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-widest">Aguardando entrega ao cliente</p>
+                </div>
+              </div>
+              <span className="bg-white px-4 py-1.5 rounded-full text-xs font-black text-emerald-600 border border-emerald-100 shadow-sm">
+                {pendingRedemptions.length} Pedidos
+              </span>
+            </div>
+
+            <div className="grid gap-4">
+              {pendingRedemptions.length > 0 ? (
+                pendingRedemptions.map(tx => (
+                  <div key={tx.id} className="bg-white p-6 rounded-2xl border border-emerald-100 flex justify-between items-center shadow-sm hover:shadow-md transition-all">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-300">
+                        <Gift size={24} />
+                      </div>
+                      <div>
+                        <p className="font-bold text-slate-800">{tx.customers?.name || 'Cliente'}</p>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">
+                          {tx.customer_phone} • {new Date(tx.created_at).toLocaleString()}
+                        </p>
+                        <p className="text-xs text-rose-500 font-bold mt-1">-{Math.abs(tx.points_earned)} pontos</p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => deliverReward(tx.id)}
+                      className="bg-emerald-500 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-emerald-600 transition-all flex items-center gap-2 shadow-lg shadow-emerald-500/20 active:scale-95"
+                    >
+                      <CheckCircle size={16} /> Entregar Brinde
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-12 bg-white/50 rounded-2xl border border-dashed border-emerald-200">
+                  <p className="text-sm text-emerald-400 font-medium italic">Nenhum resgate pendente no momento.</p>
+                </div>
+              )}
+            </div>
           </section>
 
           <div className="grid md:grid-cols-2 gap-10">

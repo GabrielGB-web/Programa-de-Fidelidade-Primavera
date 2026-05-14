@@ -22,6 +22,15 @@ export function LandingView({ onSelect }: LandingViewProps) {
           </span>
           Programa de Fidelidade
         </div>
+
+        <div className="flex items-center gap-4 mb-8">
+           <div className="w-20 h-20 bg-white rounded-2xl shadow-xl border border-slate-100 p-2">
+             <img src="/logo_primavera.png" alt="Primavera" className="w-full h-full object-contain" />
+           </div>
+           <div className="w-20 h-20 bg-white rounded-2xl shadow-xl border border-slate-100 p-2">
+             <img src="https://i.ibb.co/q34P8RbS/LOGO-GTA-2.png" alt="GTA Logo" className="w-full h-full object-contain" />
+           </div>
+        </div>
         
         <h1 className="text-6xl md:text-7xl font-bold text-slate-900 leading-tight mb-6">
           Cuidar de você <br />
