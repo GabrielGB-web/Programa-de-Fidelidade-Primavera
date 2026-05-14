@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand-blue: #1e3a8a;
+  --brand-red: #e11d48;
+  --pharmacy-50: #f8fafc;
+  --pharmacy-100: #f1f5f9;
+  --pharmacy-200: #e2e8f0;
+  --pharmacy-300: #cbd5e1;
+  --pharmacy-500: #64748b;
+  --pharmacy-700: #334155;
+  
+  /* Premium Palette */
+  --p-primary: 221 39% 11%;
+  --p-accent: 346 84% 50%;
+  --p-bg: 210 40% 98%;
+  --p-card: 0 0% 100%;
+}
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased;
+  }
+  
+  h1, h2, h3, h4 {
+    @apply font-serif tracking-tight text-brand-blue;
+  }
+}
+

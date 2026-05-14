@@ -1,0 +1,6 @@
+{
+  "name": "Cashback Farmácia Primavera",
+  "description": "Sistema de fidelidade e cashback que recompensa clientes com pontos a cada compra, permitindo o resgate de brindes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
