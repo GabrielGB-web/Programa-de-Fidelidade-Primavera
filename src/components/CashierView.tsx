@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 import { useForm } from 'react-hook-form';
 import { ArrowLeft, Plus, Smartphone, Receipt, CheckCircle2, History } from 'lucide-react';
 import { supabase } from '../lib/supabase';
