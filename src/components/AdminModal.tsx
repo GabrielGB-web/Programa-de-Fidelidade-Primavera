@@ -368,6 +368,7 @@ export function AdminModal({ onClose }: AdminModalProps) {
               </div>
             </section>
           </div>
+        </div>
         )}
       </motion.div>
     </div>
