@@ -23,7 +23,10 @@ interface AdminModalProps {
 export function AdminModal({ onClose }: AdminModalProps) {
   const [rewards, setRewards] = useState<Reward[]>([]);
   const [pendingRedemptions, setPendingRedemptions] = useState<any[]>([]);
+  const [deliveredHistory, setDeliveredHistory] = useState<any[]>([]);
   const [stats, setStats] = useState({ totalCustomers: 0, totalPoints: 0, totalRewards: 0 });
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [pin, setPin] = useState('');
   const { register, handleSubmit, reset } = useForm();
   const [loading, setLoading] = useState(false);
 
@@ -41,6 +44,15 @@ export function AdminModal({ onClose }: AdminModalProps) {
       .eq('status', 'pending')
       .order('created_at', { ascending: false });
     if (data) setPendingRedemptions(data);
+
+    const { data: historyData } = await supabase
+      .from('transactions')
+      .select('*, customers(name)')
+      .eq('type', 'redeem')
+      .eq('status', 'delivered')
+      .order('created_at', { ascending: false })
+      .limit(20);
+    if (historyData) setDeliveredHistory(historyData);
   };
 
   const fetchStats = async () => {
@@ -129,13 +141,8 @@ export function AdminModal({ onClose }: AdminModalProps) {
         <div className="p-8 bg-slate-900 text-white flex justify-between items-center relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
           <div className="flex items-center gap-4 relative z-10">
-            <div className="flex items-center gap-2">
-              <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10">
-                <Settings className="text-white" size={24} />
-              </div>
-              <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center p-1">
-                <img src="https://i.ibb.co/q34P8RbS/LOGO-GTA-2.png" alt="Logo GTA" className="w-full h-full object-contain" />
-              </div>
+            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10">
+              <Settings className="text-white" size={24} />
             </div>
             <div>
               <h2 className="text-2xl font-bold tracking-tight">Painel de Gestão</h2>
@@ -147,7 +154,38 @@ export function AdminModal({ onClose }: AdminModalProps) {
           </button>
         </div>
         
-        <div className="p-10 overflow-y-auto space-y-12">
+          </button>
+        </div>
+        
+        {!isAuthenticated ? (
+          <div className="flex-1 flex items-center justify-center p-12">
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="max-w-sm w-full text-center"
+            >
+              <div className="w-20 h-20 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-8 text-slate-400">
+                 <Settings size={40} />
+              </div>
+              <h2 className="text-2xl font-bold mb-2 text-slate-800">Acesso Restrito</h2>
+              <p className="text-slate-500 mb-8 text-sm">Insira o PIN de administrador para continuar.</p>
+              <form onSubmit={handleAuth} className="space-y-4">
+                <input 
+                  type="password"
+                  value={pin}
+                  onChange={(e) => setPin(e.target.value)}
+                  placeholder="PIN de 4 dígitos"
+                  className="w-full px-6 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-indigo-500/20 outline-none text-center text-2xl font-black tracking-[1em]"
+                  autoFocus
+                />
+                <button className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-600 transition-all">
+                  Entrar no Painel
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        ) : (
+          <div className="p-10 overflow-y-auto space-y-12">
           {/* Stats Grid */}
           <section className="grid grid-cols-3 gap-6">
              <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 flex items-center gap-4">
@@ -228,6 +266,35 @@ export function AdminModal({ onClose }: AdminModalProps) {
             </div>
           </section>
 
+          {/* History Section */}
+          <section className="bg-slate-50 p-8 rounded-[3rem] border border-slate-100">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-10 h-10 bg-slate-200 text-slate-500 rounded-xl flex items-center justify-center">
+                <BarChart3 size={22} />
+              </div>
+              <h3 className="font-bold text-slate-800">Histórico de Resgates Concluídos</h3>
+            </div>
+            
+            <div className="space-y-3">
+              {deliveredHistory.length > 0 ? (
+                deliveredHistory.map(tx => (
+                  <div key={tx.id} className="bg-white/50 p-4 rounded-2xl border border-slate-100 flex justify-between items-center opacity-70">
+                    <div className="flex items-center gap-4">
+                      <CheckCircle className="text-emerald-500" size={18} />
+                      <div>
+                        <p className="font-bold text-slate-700 text-sm">{tx.customers?.name}</p>
+                        <p className="text-[9px] text-slate-400 font-bold uppercase">{new Date(tx.created_at).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-black text-slate-400 uppercase">Entregue</span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-xs text-slate-400 text-center py-4">Nenhum histórico encontrado.</p>
+              )}
+            </div>
+          </section>
+
           <div className="grid md:grid-cols-2 gap-10">
             {/* Form Section */}
             <section>
@@ -304,7 +371,7 @@ export function AdminModal({ onClose }: AdminModalProps) {
               </div>
             </section>
           </div>
-        </div>
+        )}
       </motion.div>
     </div>
   );

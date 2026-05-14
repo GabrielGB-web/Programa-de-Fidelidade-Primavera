@@ -10,6 +10,9 @@ interface CashierViewProps {
 }
 
 export function CashierView({ onBack }: CashierViewProps) {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [pin, setPin] = useState('');
+  
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm({
     defaultValues: { phone: '', value: '', coupon: '', name: '' }
   });
@@ -91,6 +94,43 @@ export function CashierView({ onBack }: CashierViewProps) {
     }
     setIsSubmitting(false);
   };
+
+  const handleAuth = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pin === '1234') {
+      setIsAuthenticated(true);
+    } else {
+      alert('PIN Incorreto');
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="max-w-md mx-auto bg-white p-12 rounded-[3.5rem] shadow-2xl border border-slate-100 text-center">
+        <button onClick={onBack} className="flex items-center gap-2 text-slate-400 hover:text-indigo-600 mb-8 transition-colors font-bold text-xs uppercase tracking-widest">
+          <ArrowLeft size={14} /> Sair
+        </button>
+        <div className="w-20 h-20 bg-indigo-50 text-indigo-600 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-inner">
+           <Receipt size={32} />
+        </div>
+        <h2 className="text-3xl font-bold mb-2 text-slate-900">Acesso Restrito</h2>
+        <p className="text-slate-500 mb-8 text-sm">Insira o PIN operacional para registrar vendas.</p>
+        <form onSubmit={handleAuth} className="space-y-4">
+          <input 
+            type="password"
+            value={pin}
+            onChange={(e) => setPin(e.target.value)}
+            placeholder="PIN"
+            className="w-full px-6 py-5 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-indigo-500/20 outline-none text-center text-3xl font-black tracking-[0.5em]"
+            autoFocus
+          />
+          <button className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-xl shadow-slate-200">
+            Acessar Painel
+          </button>
+        </form>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-5xl mx-auto grid md:grid-cols-5 gap-8 items-start">
