@@ -29,7 +29,7 @@ export function CashierView({ onBack }: CashierViewProps) {
       .from('transactions')
       .select('*, customers(name)')
       .eq('type', 'redeem')
-      .eq('status', 'pending')
+      .or('status.eq.pending,status.is.null')
       .order('created_at', { ascending: false });
     if (data) setPendingRedemptions(data);
 
@@ -56,12 +56,24 @@ export function CashierView({ onBack }: CashierViewProps) {
     }
   };
 
+  const fetchRecentActivities = async () => {
+    const { data } = await supabase
+      .from('transactions')
+      .select('*, customers(name)')
+      .eq('type', 'earn')
+      .order('created_at', { ascending: false })
+      .limit(8);
+    if (data) setRecentTransactions(data);
+  };
+
   useEffect(() => {
     if (isAuthenticated) {
       fetchRedemptions();
+      fetchRecentActivities();
       const channel = supabase.channel('cashier-db')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, () => {
           fetchRedemptions();
+          fetchRecentActivities();
         })
         .subscribe();
       return () => { channel.unsubscribe(); };
@@ -126,15 +138,9 @@ export function CashierView({ onBack }: CashierViewProps) {
       // Success animation/feedback could go here
       alert(`Sucesso! ${pointsToAdd} pontos adicionados a ${foundUser?.name || data.name}.`);
       
-      // Update local history
-      setRecentTransactions([{
-        name: foundUser?.name || data.name,
-        points: pointsToAdd,
-        time: new Date().toLocaleTimeString()
-      }, ...recentTransactions.slice(0, 4)]);
-
       reset();
       setFoundUser(null);
+      fetchRecentActivities();
     } catch (e: any) {
       alert(`Erro: ${e.message}`);
     }
@@ -308,13 +314,13 @@ export function CashierView({ onBack }: CashierViewProps) {
           <div className="space-y-4">
             {recentTransactions.length > 0 ? (
               recentTransactions.map((tx, i) => (
-                <div key={i} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <div key={tx.id || i} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
                   <div>
-                    <p className="font-bold text-slate-800 text-sm">{tx.name}</p>
-                    <p className="text-[10px] text-slate-400 font-bold">{tx.time}</p>
+                    <p className="font-bold text-slate-800 text-sm">{tx.customers?.name || tx.name}</p>
+                    <p className="text-[10px] text-slate-400 font-bold">{new Date(tx.created_at).toLocaleTimeString()}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-emerald-500 font-black">+{tx.points} pts</p>
+                    <p className="text-emerald-500 font-black">+{tx.points_earned || tx.points} pts</p>
                   </div>
                 </div>
               ))

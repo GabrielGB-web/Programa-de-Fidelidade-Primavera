@@ -101,7 +101,8 @@ export function CustomerView({ onBack }: CustomerViewProps) {
         customer_phone: customer.phone,
         value: 0,
         points_earned: -reward.points_required,
-        type: 'redeem'
+        type: 'redeem',
+        status: 'pending'
       });
 
       setCustomer({ ...customer, points: newPoints });
@@ -217,7 +218,7 @@ export function CustomerView({ onBack }: CustomerViewProps) {
               <div className="space-y-4">
                 {transactions.length > 0 ? (
                   transactions.map((tx) => (
-                    <div key={tx.id} className="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
+                    <div key={tx.id} className="flex justify-between items-center py-3 border-b border-slate-50 last:border-0">
                       <div>
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                           {new Date(tx.created_at).toLocaleDateString()}
@@ -225,6 +226,13 @@ export function CustomerView({ onBack }: CustomerViewProps) {
                         <p className="text-xs font-bold text-slate-600">
                           {tx.type === 'earn' ? 'Compra Registrada' : 'Brinde Resgatado'}
                         </p>
+                        {tx.type === 'redeem' && (
+                          <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full ${
+                            tx.status === 'delivered' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
+                          }`}>
+                            {tx.status === 'delivered' ? 'Entregue' : 'Aguardando Retirada'}
+                          </span>
+                        )}
                       </div>
                       <div className={`text-sm font-black ${tx.points_earned > 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
                         {tx.points_earned > 0 ? `+${tx.points_earned}` : tx.points_earned} pts
