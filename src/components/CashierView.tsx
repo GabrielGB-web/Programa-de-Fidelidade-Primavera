@@ -130,7 +130,8 @@ export function CashierView({ onBack }: CashierViewProps) {
           coupon_number: data.coupon,
           value,
           points_earned: pointsToAdd,
-          type: 'earn'
+          type: 'earn',
+          status: 'completed'
         });
 
       if (transError) throw transError;

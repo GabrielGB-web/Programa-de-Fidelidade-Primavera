@@ -106,15 +106,35 @@ export function CustomerView({ onBack }: CustomerViewProps) {
       if (custError) throw custError;
 
       // Add transaction
-      await supabase.from('transactions').insert({
+      console.log("Tentando registrar resgate para:", customer.phone);
+      const { data: txData, error: txError } = await supabase.from('transactions').insert({
         customer_phone: customer.phone,
         value: 0,
         points_earned: -reward.points_required,
         type: 'redeem',
-        status: 'pending'
-      });
+        status: 'pending',
+        coupon_number: 'RESGATE'
+      }).select();
 
+      if (txError) {
+        console.error("Erro Supabase Insert:", txError);
+        alert(`ERRO CRÍTICO NO BANCO: ${txError.message}\nCódigo: ${txError.code}\nDetalhes: ${txError.details}`);
+        return;
+      }
+
+      console.log("Resgate registrado com sucesso:", txData);
+      
       setCustomer({ ...customer, points: newPoints });
+      
+      // Refresh transactions list
+      const { data: updatedTxs } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('customer_phone', customer.phone)
+        .order('created_at', { ascending: false })
+        .limit(10);
+      if (updatedTxs) setTransactions(updatedTxs as Transaction[]);
+
       alert(`Parabéns! Você resgatou: ${reward.name}. Apresente seu CPF no balcão para retirar.`);
     } catch (err: any) {
       alert(`Erro no resgate: ${err.message}`);
