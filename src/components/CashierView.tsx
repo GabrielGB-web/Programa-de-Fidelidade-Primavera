@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { useForm } from 'react-hook-form';
-import { ArrowLeft, Plus, Smartphone, Receipt, CheckCircle2, History } from 'lucide-react';
+import { ArrowLeft, Plus, Smartphone, Receipt, CheckCircle2, History, PackageCheck, CheckCircle, Gift } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Customer } from '../types';
 
@@ -21,6 +21,52 @@ export function CashierView({ onBack }: CashierViewProps) {
   const [searching, setSearching] = useState(false);
   const [foundUser, setFoundUser] = useState<Customer | null>(null);
   const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
+  const [pendingRedemptions, setPendingRedemptions] = useState<any[]>([]);
+  const [deliveredHistory, setDeliveredHistory] = useState<any[]>([]);
+
+  const fetchRedemptions = async () => {
+    const { data } = await supabase
+      .from('transactions')
+      .select('*, customers(name)')
+      .eq('type', 'redeem')
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false });
+    if (data) setPendingRedemptions(data);
+
+    const { data: historyData } = await supabase
+      .from('transactions')
+      .select('*, customers(name)')
+      .eq('type', 'redeem')
+      .eq('status', 'delivered')
+      .order('created_at', { ascending: false })
+      .limit(10);
+    if (historyData) setDeliveredHistory(historyData);
+  };
+
+  const deliverReward = async (txId: string) => {
+    try {
+      const { error } = await supabase
+        .from('transactions')
+        .update({ status: 'delivered' })
+        .eq('id', txId);
+      if (error) throw error;
+      fetchRedemptions();
+    } catch (e: any) {
+      alert(`Erro ao entregar: ${e.message}`);
+    }
+  };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchRedemptions();
+      const channel = supabase.channel('cashier-db')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, () => {
+          fetchRedemptions();
+        })
+        .subscribe();
+      return () => { channel.unsubscribe(); };
+    }
+  }, [isAuthenticated]);
 
   const phone = watch('phone');
 
@@ -285,6 +331,63 @@ export function CashierView({ onBack }: CashierViewProps) {
           <p className="text-sm text-indigo-700 leading-relaxed font-medium">
             Sempre solicite o CPF do cliente para garantir que os pontos sejam vinculados corretamente à conta de fidelidade.
           </p>
+        </div>
+
+        {/* Pending Redemptions In Cashier View */}
+        <div className="bg-white p-8 rounded-[2.5rem] border-2 border-emerald-500/20 shadow-xl shadow-emerald-500/5">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+              <PackageCheck size={20} />
+            </div>
+            <h3 className="font-bold text-slate-800 text-sm">Resgates Pendentes</h3>
+          </div>
+          
+          <div className="space-y-4">
+            {pendingRedemptions.length > 0 ? (
+              pendingRedemptions.map(tx => (
+                <div key={tx.id} className="p-5 bg-emerald-50/30 rounded-2xl border border-emerald-100">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <p className="font-bold text-slate-900 text-sm">{tx.customers?.name || 'Cliente'}</p>
+                      <p className="text-[9px] text-slate-400 font-bold uppercase">{tx.customer_phone}</p>
+                    </div>
+                    <span className="text-[10px] font-black text-rose-500 bg-white px-2 py-1 rounded-lg border border-rose-100 shadow-sm">-{Math.abs(tx.points_earned)} pts</span>
+                  </div>
+                  <button 
+                    onClick={() => deliverReward(tx.id)}
+                    className="w-full bg-emerald-600 text-white py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-md shadow-emerald-600/10 flex items-center justify-center gap-2"
+                  >
+                    <CheckCircle size={14} /> Dar Baixa (Entregar)
+                  </button>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-6 border-2 border-dashed border-slate-100 rounded-2xl">
+                <p className="text-[10px] text-slate-300 font-bold uppercase tracking-widest">Nenhum resgate pendente</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* History in Cashier View */}
+        <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100">
+          <div className="flex items-center gap-3 mb-6">
+             <History size={18} className="text-slate-400" />
+             <h3 className="font-bold text-slate-800 text-sm">Últimas Entregas</h3>
+          </div>
+          <div className="space-y-3">
+             {deliveredHistory.map(tx => (
+               <div key={tx.id} className="flex items-center justify-between p-3 bg-white rounded-xl border border-slate-100 opacity-60">
+                 <div className="flex items-center gap-3">
+                    <CheckCircle className="text-emerald-500" size={14} />
+                    <div>
+                      <p className="font-bold text-slate-700 text-[11px]">{tx.customers?.name}</p>
+                      <p className="text-[8px] text-slate-400 font-bold uppercase">{new Date(tx.created_at).toLocaleDateString()}</p>
+                    </div>
+                 </div>
+               </div>
+             ))}
+          </div>
         </div>
       </motion.div>
     </div>
