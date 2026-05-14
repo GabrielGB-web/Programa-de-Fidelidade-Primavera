@@ -216,82 +216,89 @@ export function AdminModal({ onClose }: AdminModalProps) {
           </section>
 
           {/* Redemptions Section */}
-          <section className="bg-emerald-50/50 p-8 rounded-[3rem] border border-emerald-100">
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                  <PackageCheck size={22} />
+          <section className="bg-white p-8 rounded-[3rem] border-2 border-emerald-500/20 shadow-xl shadow-emerald-500/5">
+            <div className="flex items-center justify-between mb-8 border-b border-emerald-100 pb-6">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 bg-emerald-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                  <PackageCheck size={28} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-slate-800">Resgates Pendentes</h3>
-                  <p className="text-[10px] text-emerald-600 font-bold uppercase tracking-widest">Aguardando entrega ao cliente</p>
+                  <h3 className="text-xl font-black text-slate-800">Resgates Pendentes</h3>
+                  <p className="text-xs text-emerald-600 font-bold uppercase tracking-widest">Aguardando entrega ao cliente</p>
                 </div>
               </div>
-              <span className="bg-white px-4 py-1.5 rounded-full text-xs font-black text-emerald-600 border border-emerald-100 shadow-sm">
-                {pendingRedemptions.length} Pedidos
-              </span>
+              <div className="bg-emerald-50 px-6 py-2 rounded-full border border-emerald-100">
+                <span className="text-sm font-black text-emerald-600 uppercase">
+                  {pendingRedemptions.length} Pendentes
+                </span>
+              </div>
             </div>
 
-            <div className="grid gap-4">
+            <div className="space-y-4">
               {pendingRedemptions.length > 0 ? (
                 pendingRedemptions.map(tx => (
-                  <div key={tx.id} className="bg-white p-6 rounded-2xl border border-emerald-100 flex justify-between items-center shadow-sm hover:shadow-md transition-all">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-300">
-                        <Gift size={24} />
+                  <div key={tx.id} className="bg-slate-50 p-6 rounded-3xl border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-6 hover:border-emerald-400/50 transition-all group">
+                    <div className="flex items-center gap-5">
+                      <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-slate-400 shadow-sm border border-slate-100">
+                        <Gift size={28} />
                       </div>
                       <div>
-                        <p className="font-bold text-slate-800">{tx.customers?.name || 'Cliente'}</p>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">
-                          {tx.customer_phone} • {new Date(tx.created_at).toLocaleString()}
-                        </p>
-                        <p className="text-xs text-rose-500 font-bold mt-1">-{Math.abs(tx.points_earned)} pontos</p>
+                        <p className="font-black text-slate-900 text-lg">{tx.customers?.name || 'Cliente'}</p>
+                        <div className="flex items-center gap-3 mt-1">
+                          <p className="text-xs text-slate-500 font-bold">{tx.customer_phone}</p>
+                          <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase">{new Date(tx.created_at).toLocaleString()}</p>
+                        </div>
+                        <p className="text-sm text-rose-600 font-black mt-2 bg-rose-50 inline-block px-3 py-1 rounded-lg">-{Math.abs(tx.points_earned)} pontos</p>
                       </div>
                     </div>
                     <button 
                       onClick={() => deliverReward(tx.id)}
-                      className="bg-emerald-500 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-emerald-600 transition-all flex items-center gap-2 shadow-lg shadow-emerald-500/20 active:scale-95"
+                      className="w-full md:w-auto bg-emerald-600 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-emerald-700 transition-all flex items-center justify-center gap-3 shadow-xl shadow-emerald-600/20 active:scale-95"
                     >
-                      <CheckCircle size={16} /> Entregar Brinde
+                      <CheckCircle size={20} /> Confirmar Entrega
                     </button>
                   </div>
                 ))
               ) : (
-                <div className="text-center py-12 bg-white/50 rounded-2xl border border-dashed border-emerald-200">
-                  <p className="text-sm text-emerald-400 font-medium italic">Nenhum resgate pendente no momento.</p>
+                <div className="text-center py-20 bg-slate-50/50 rounded-[2rem] border-2 border-dashed border-slate-200">
+                  <PackageCheck size={48} className="mx-auto text-slate-200 mb-4" />
+                  <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Nenhum resgate aguardando</p>
                 </div>
               )}
             </div>
           </section>
 
           {/* History Section */}
-          <section className="bg-slate-50 p-8 rounded-[3rem] border border-slate-100">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center">
-                <History size={22} />
+          <section className="bg-white p-8 rounded-[3rem] border-2 border-slate-200/60 shadow-sm">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center">
+                <History size={24} />
               </div>
               <div>
-                <h3 className="font-bold text-slate-800">Histórico Geral de Entregas</h3>
-                <p className="text-[10px] text-slate-400 font-bold uppercase">Registro de todos os brindes já entregues</p>
+                <h3 className="text-lg font-black text-slate-800">Histórico de Entregas</h3>
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Últimos resgates concluídos</p>
               </div>
             </div>
             
-            <div className="space-y-3">
+            <div className="grid md:grid-cols-2 gap-4">
               {deliveredHistory.length > 0 ? (
                 deliveredHistory.map(tx => (
-                  <div key={tx.id} className="bg-white/50 p-4 rounded-2xl border border-slate-100 flex justify-between items-center opacity-70">
+                  <div key={tx.id} className="bg-slate-50/50 p-5 rounded-2xl border border-slate-100 flex justify-between items-center group">
                     <div className="flex items-center gap-4">
-                      <CheckCircle className="text-emerald-500" size={18} />
+                      <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center">
+                        <CheckCircle size={18} />
+                      </div>
                       <div>
-                        <p className="font-bold text-slate-700 text-sm">{tx.customers?.name}</p>
-                        <p className="text-[9px] text-slate-400 font-bold uppercase">{new Date(tx.created_at).toLocaleDateString()}</p>
+                        <p className="font-bold text-slate-700">{tx.customers?.name}</p>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase">{new Date(tx.created_at).toLocaleDateString()}</p>
                       </div>
                     </div>
-                    <span className="text-[10px] font-black text-slate-400 uppercase">Entregue</span>
+                    <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full uppercase tracking-widest">Entregue</span>
                   </div>
                 ))
               ) : (
-                <p className="text-xs text-slate-400 text-center py-4">Nenhum histórico encontrado.</p>
+                <p className="col-span-2 text-xs text-slate-400 text-center py-10 bg-slate-50/30 rounded-2xl border border-dashed border-slate-100 italic">O histórico aparecerá aqui após as primeiras entregas.</p>
               )}
             </div>
           </section>
