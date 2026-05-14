@@ -46,6 +46,10 @@ export function CustomerView({ onBack }: CustomerViewProps) {
         .eq('phone', phone)
         .single();
       
+      if (error) {
+        alert(`Erro ao buscar cliente: ${error.message}`);
+      }
+
       if (data) {
         setCustomer(data as Customer);
         
@@ -63,19 +67,24 @@ export function CustomerView({ onBack }: CustomerViewProps) {
         }
 
         // Fetch Transactions
-        const { data: txData } = await supabase
+        const { data: txData, error: txError } = await supabase
           .from('transactions')
           .select('*')
           .eq('customer_phone', phone)
           .order('created_at', { ascending: false })
           .limit(5);
-        if (txData) setTransactions(txData as Transaction[]);
+
+        if (txData) {
+          setTransactions(txData as Transaction[]);
+        } else if (txError) {
+          alert(`Erro ao buscar histórico: ${txError.message}`);
+        }
       } else {
         alert("Cliente não encontrado.");
         setCustomer(null);
       }
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      alert(`Erro inesperado: ${e.message}`);
     }
     setLoading(false);
   };
