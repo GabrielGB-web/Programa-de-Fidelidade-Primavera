@@ -356,6 +356,7 @@ export function CashierView({ onBack }: CashierViewProps) {
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <p className="font-bold text-slate-900 text-sm">{tx.customers?.name || 'Cliente'}</p>
+                      <p className="text-xs font-black text-emerald-600 uppercase tracking-tighter mb-1">🎁 {tx.reward_name || 'Brinde'}</p>
                       <p className="text-[9px] text-slate-400 font-bold uppercase">{tx.customer_phone}</p>
                     </div>
                     <span className="text-[10px] font-black text-rose-500 bg-white px-2 py-1 rounded-lg border border-rose-100 shadow-sm">-{Math.abs(tx.points_earned)} pts</span>

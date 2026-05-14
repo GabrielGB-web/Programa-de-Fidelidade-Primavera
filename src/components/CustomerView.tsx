@@ -113,7 +113,8 @@ export function CustomerView({ onBack }: CustomerViewProps) {
         points_earned: -reward.points_required,
         type: 'redeem',
         status: 'pending',
-        coupon_number: 'RESGATE'
+        coupon_number: 'RESGATE',
+        reward_name: reward.name
       }).select();
 
       if (txError) {
@@ -253,7 +254,7 @@ export function CustomerView({ onBack }: CustomerViewProps) {
                           {new Date(tx.created_at).toLocaleDateString()}
                         </p>
                         <p className="text-xs font-bold text-slate-600">
-                          {tx.type === 'earn' ? 'Compra Registrada' : 'Brinde Resgatado'}
+                          {tx.type === 'earn' ? 'Compra Registrada' : `Resgate: ${tx.reward_name || 'Brinde'}`}
                         </p>
                         {tx.type === 'redeem' && (
                           <span className={`text-[8px] font-black uppercase px-2 py-0.5 rounded-full ${
